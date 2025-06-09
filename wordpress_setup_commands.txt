@@ -1,0 +1,55 @@
+# WordPress Server Setup Script (Ubuntu 22.04)
+
+# 1. Update system
+sudo apt update && sudo apt upgrade -y
+
+# 2. Install Apache
+sudo apt install apache2 -y
+
+# 3. Install MySQL
+sudo apt install mysql-server -y
+sudo mysql_secure_installation
+
+# 4. Create WordPress database
+sudo mysql -u root -p
+CREATE DATABASE wordpress;
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'password123';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'admin'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+# 5. Install PHP
+sudo apt install php php-mysql libapache2-mod-php php-cli php-cgi php-gd -y
+
+# 6. Download WordPress
+cd /tmp
+wget https://wordpress.org/latest.tar.gz
+tar -xvzf latest.tar.gz
+sudo mv wordpress /var/www/html/
+
+# 7. Set permissions
+sudo chown -R www-data:www-data /var/www/html/wordpress
+sudo chmod -R 755 /var/www/html/wordpress
+
+# 8. Configure Apache
+sudo nano /etc/apache2/sites-available/wordpress.conf
+
+# Inside the file, paste:
+# <VirtualHost *:80>
+#     ServerAdmin admin@example.com
+#     DocumentRoot /var/www/html/wordpress
+#     ServerName yourdomain.com
+#     <Directory /var/www/html/wordpress>
+#         AllowOverride All
+#     </Directory>
+#     ErrorLog ${APACHE_LOG_DIR}/error.log
+#     CustomLog ${APACHE_LOG_DIR}/access.log combined
+# </VirtualHost>
+
+# 9. Enable site and modules
+sudo a2ensite wordpress
+sudo a2enmod rewrite
+sudo systemctl restart apache2
+
+# 10. Finish setup in browser
+# Go to http://yourdomain.com and complete installation
